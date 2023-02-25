@@ -1,0 +1,29 @@
+{
+    "manifest_version": 3,
+    "name": "Time Tracker",
+    "description": "Shows time spent on the browser.",
+    "version": "1.0",
+
+    "action":{
+        "default_popup": "popup.html"
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["./scripts/content.js"]
+        }
+    ],
+
+    "background":{
+        "service_worker": "background.js",
+        "type": "module"
+    },
+
+    "permissions": [
+        "tabs",
+        "storage",
+        "notifications",
+        "idle"
+    ]
+}
