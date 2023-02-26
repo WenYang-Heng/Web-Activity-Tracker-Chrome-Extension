@@ -1,5 +1,5 @@
 
-let currentSiteName;
+let domainName;
 let enterTime;
 let timeSpent;
 let idleDetection = 15;
@@ -8,12 +8,14 @@ let totalIdleTime;
 let idleInterval;
 
 
-chrome.tabs.onCreated.addListener(function(){
-    enterTime = Date.now();
-    // chrome.tabs.query({ active: true, lastFocusedWindow: true }, function(){
-    //     getSiteName(tabs[0].url.split("/")[2]);
-    // });
-
+chrome.tabs.onCreated.addListener(function(tabs){
+    getDomainName();
+    if(domainName === "newtab"){
+        console.log("empty url");
+    }
+    else{
+        // do something if url is present
+    }
 });
 
 chrome.tabs.onRemoved.addListener(function(tabid, removed){
@@ -22,8 +24,8 @@ chrome.tabs.onRemoved.addListener(function(tabid, removed){
     console.log("Idle time: " + idleTime);
 });
 
-// function getSiteName(currentSiteName){
-//     console.log("Site: " + currentSiteName );
+// function getSiteName(domainName){
+//     console.log("Site: " + domainName );
 // }
 
 chrome.idle.setDetectionInterval(idleDetection);
@@ -57,4 +59,19 @@ chrome.idle.onStateChanged.addListener(function(newState){
 
 function incrementIdleTime(){
     idleTime++;
+}
+
+
+function getDomainName(){
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs){
+        // domainName = tabs[0].url.split("/")[2];
+        try {
+            let tab = tabs[0];
+            let url = new URL(tab.url)
+            let domainName = url.hostname;
+            console.log(domainName);
+        } catch (e) {
+            console.log(e);
+        }
+    });
 }
