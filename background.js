@@ -10,12 +10,6 @@ let idleInterval;
 
 chrome.tabs.onCreated.addListener(function(tabs){
     getDomainName();
-    if(domainName === "newtab"){
-        console.log("empty url");
-    }
-    else{
-        // do something if url is present
-    }
 });
 
 chrome.tabs.onRemoved.addListener(function(tabid, removed){
