@@ -12,6 +12,23 @@ chrome.tabs.onCreated.addListener(function(tabs){
     getDomainName();
 });
 
+chrome.tabs.onActivated.addListener(function(activeInfo){
+    chrome.tabs.get(activeInfo.tabId, function(tab){
+        if(tab.url === "chrome://newtab/"){
+            console.log("empty tab");
+        }else{
+            console.log("you are here: " + tab.url);
+        }
+        
+    });
+});
+
+chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
+    if (tab.active && change.url){
+        console.log("changed you are here: " + change.url)
+    }
+});
+
 chrome.tabs.onRemoved.addListener(function(tabid, removed){
     timeSpent = Date.now() - enterTime; //need to convert to seconds
     console.log(timeSpent);
