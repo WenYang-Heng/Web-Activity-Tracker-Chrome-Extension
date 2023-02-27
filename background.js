@@ -24,6 +24,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo){
 });
 
 chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
+    //I should track exit time here
     if (tab.active && change.url){
         console.log("changed you are here: " + change.url)
     }
@@ -85,4 +86,8 @@ function getDomainName(){
             console.log(e);
         }
     });
+}
+
+function exitTime(){
+
 }
