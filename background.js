@@ -1,93 +1,161 @@
+// let domainName;
+// let previousDomainName;
+// let enterTime;
+// let timeSpent;
+// let idleDetection = 15;
+// let idleTime = 0;
+// let totalIdleTime;
+// let idleInterval;
 
-let domainName;
-let enterTime;
-let timeSpent;
-let idleDetection = 15;
-let idleTime = 0;
-let totalIdleTime;
-let idleInterval;
-
-
-chrome.tabs.onCreated.addListener(function(tabs){
-    getDomainName();
-});
+let startTime;
+let timeOnSite;
+let previousDomain = null;
+let currentDomain = null;
+let currentDate;
 
 chrome.tabs.onActivated.addListener(function(activeInfo){
+    console.log("on activated event fires");
     chrome.tabs.get(activeInfo.tabId, function(tab){
-        if(tab.url === "chrome://newtab/"){
-            console.log("empty tab");
-        }else{
-            console.log("you are here: " + tab.url);
+        if(tab.url && tab.status === 'complete' && !tab.url.startsWith('chrome://')){
+            let url = new URL(tab.url);
+            currentDomain = url.hostname;
+            if(currentDomain !== previousDomain){
+                timeSpent();
+                storage();
+                console.log("Time spent on " + previousDomain + ": " + timeOnSite);
+            }else{
+                console.log("switched to the same domain");
+            }
+            startTime = new Date();
         }
-        
     });
 });
 
-chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
-    //I should track exit time here
-    if (tab.active && change.url){
-        console.log("changed you are here: " + change.url)
-    }
-});
-
-chrome.tabs.onRemoved.addListener(function(tabid, removed){
-    timeSpent = Date.now() - enterTime; //need to convert to seconds
-    console.log(timeSpent);
-    console.log("Idle time: " + idleTime);
-});
-
-// function getSiteName(domainName){
-//     console.log("Site: " + domainName );
-// }
-
-chrome.idle.setDetectionInterval(idleDetection);
-
-// chrome.idle.queryState(idleDetection, function(state){
-//     if(state === "idle"){
-//         console.log("now idle");
-//     }
-//     else{
-//         console.log("now active");
+// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
+//     if(changeInfo.url && tab.url && !tab.url.startsWith('chrome://')){
+//         //check if the url has changed
+//         console.log(changeInfo);
+//         if(changeInfo.url){
+//             console.log("url changed");
+//             currentDomain = new URL(changeInfo.url).hostname;
+//             timeSpent();
+//             console.log("page refreshed from " + previousDomain + " to " + currentDomain);
+//             console.log("time spent on " + previousDomain + " :" + timeOnSite);
+//             previousDomain = currentDomain;
+//         }else{
+//             console.log("page refreshed to same domain: " + currentDomain);
+//         }
+//         console.log("page loaded");
+//         startTime = new Date();
 //     }
 // });
 
-chrome.idle.onStateChanged.addListener(function(newState){
-
-    if(newState === "idle"){
-
-        console.log("now idle");
-        idleTime = 0;
-        idleInterval = setInterval(incrementIdleTime, 1000);
-
-    }else{
-
-        clearInterval(idleInterval);
-        totalIdleTime = idleTime + idleDetection;
-        console.log("now active, idle for " + totalIdleTime);
-        
-    }
-
-});
-
-function incrementIdleTime(){
-    idleTime++;
+function timeSpent(){
+    timeOnSite = new Date() - startTime;
 }
 
-
-function getDomainName(){
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs){
-        // domainName = tabs[0].url.split("/")[2];
-        try {
-            let tab = tabs[0];
-            let url = new URL(tab.url)
-            let domainName = url.hostname;
-            console.log(domainName);
-        } catch (e) {
-            console.log(e);
+function storage(){
+    currentDate = getDate();
+    chrome.storage.local.get(currentDate, function(result){
+        //initialize the object if storage is empty
+        if(Object.keys(result).length === 0){
+            let day = {}; //creates an empty object
+            day[currentDate] = []; // assigns empty array to the object identified by the date
+            chrome.storage.local.set(day, function(){
+                console.log(`Created new object for ${currentDate}`);
+            });
+        }else{
+            console.log(`${currentDate} object exists`);
         }
+
+        if(previousDomain !== null){
+            let record = {
+                domain: previousDomain,
+                totalTime: timeOnSite
+            }
+
+            //check if domain exists in the object
+            let check = false;
+            let stats = result[currentDate]; //retrieve values of key from result object and assign it to stats
+            //check if result has an object
+            if(stats){
+                    for(let i = 0; i < stats.length; i++){
+                        if(stats[i].domain === previousDomain){
+                            console.log(previousDomain + " exist, increment total time");
+                            stats[i].totalTime += timeOnSite;
+                            check = true;
+                            break;
+                        }
+                    }                    
+            }else{
+                console.log(`${currentDate} object does not exist`);
+            }
+            
+            if(!check){
+                if(Array.isArray(stats)){
+                stats.push(record);
+                } else {
+                stats = [record];
+                }
+            }
+
+            // use Promise to ensure that storage function completes execution before updating previous domain
+            chrome.storage.local.set({[currentDate]: stats}, function(){
+                console.log(`Pushed data to ${currentDate}`);
+                console.log(result[currentDate]);
+                console.log(result);
+            });
+
+            // chrome.storage.local.clear(function(){
+            //     console.log('storage cleared');
+            // });            
+        }
+
+        previousDomain = currentDomain;
+        console.log("previous domain changed");
+        console.log("storage function finished.");
     });
 }
 
-function exitTime(){
+function getDate() {
+    let now = new Date();
+    now.setDate(now.getDate());
+    let date = now.toLocaleDateString('en-GB');
+    return date.split('/').join('-');
+  }
 
-}
+// chrome.tabs.onRemoved.addListener(function(tabid, removed){
+//     timeOnSite();
+// });
+
+// // function getSiteName(domainName){
+// //     console.log("Site: " + domainName );
+// // }
+
+// chrome.idle.setDetectionInterval(idleDetection);
+
+// // chrome.idle.queryState(idleDetection, function(state){
+// //     if(state === "idle"){
+// //         console.log("now idle");
+// //     }
+// //     else{
+// //         console.log("now active");
+// //     }
+// // });
+
+// chrome.idle.onStateChanged.addListener(function(newState){
+//     if(newState === "idle"){
+//         console.log("now idle");
+//         idleTime = 0;
+//         idleInterval = setInterval(incrementIdleTime, 1000);
+//     }else{
+//         clearInterval(idleInterval);
+//         totalIdleTime = idleTime + idleDetection;
+//         console.log("now active, idle for " + totalIdleTime);  
+//     }
+// });
+
+// function incrementIdleTime(){
+//     idleTime++;
+// }
+
