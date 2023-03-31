@@ -13,42 +13,38 @@ let previousDomain = null;
 let currentDomain = null;
 let currentDate;
 
-chrome.tabs.onActivated.addListener(function(activeInfo){
-    console.log("on activated event fires");
-    chrome.tabs.get(activeInfo.tabId, function(tab){
-        if(tab.url && tab.status === 'complete' && !tab.url.startsWith('chrome://')){
-            let url = new URL(tab.url);
-            currentDomain = url.hostname;
-            if(currentDomain !== previousDomain){
-                timeSpent();
-                storage();
-                console.log("Time spent on " + previousDomain + ": " + timeOnSite);
-            }else{
-                console.log("switched to the same domain");
-            }
-            startTime = new Date();
-        }
-    });
-});
-
-// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
-//     if(changeInfo.url && tab.url && !tab.url.startsWith('chrome://')){
-//         //check if the url has changed
-//         console.log(changeInfo);
-//         if(changeInfo.url){
-//             console.log("url changed");
-//             currentDomain = new URL(changeInfo.url).hostname;
-//             timeSpent();
-//             console.log("page refreshed from " + previousDomain + " to " + currentDomain);
-//             console.log("time spent on " + previousDomain + " :" + timeOnSite);
-//             previousDomain = currentDomain;
-//         }else{
-//             console.log("page refreshed to same domain: " + currentDomain);
+// chrome.tabs.onActivated.addListener(function(activeInfo){
+//     console.log("on activated event fires");
+//     chrome.tabs.get(activeInfo.tabId, function(tab){
+//         if(tab.url && tab.status === 'complete' && !tab.url.startsWith('chrome://')){
+//             let url = new URL(tab.url);
+//             currentDomain = url.hostname;
+//             if(currentDomain !== previousDomain){
+//                 timeSpent();
+//                 storage();
+//                 console.log("Time spent on " + previousDomain + ": " + timeOnSite);
+//             }else{
+//                 console.log("switched to the same domain");
+//             }
+//             startTime = new Date();
 //         }
-//         console.log("page loaded");
-//         startTime = new Date();
-//     }
+//     });
 // });
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
+    if(changeInfo.url && tab.url && !tab.url.startsWith('chrome://')){
+        //check if the url has changed
+        currentDomain = new URL(changeInfo.url).hostname;
+        if(changeInfo.url && currentDomain !== previousDomain){
+            timeSpent();
+            storage();
+            console.log("time spent on " + previousDomain + " :" + timeOnSite);
+        }else{
+            console.log("page refreshed to same domain: " + currentDomain);
+        }
+        startTime = new Date();
+    }
+});
 
 function timeSpent(){
     timeOnSite = new Date() - startTime;
@@ -106,9 +102,9 @@ function storage(){
                 console.log(result);
             });
 
-            // chrome.storage.local.clear(function(){
-            //     console.log('storage cleared');
-            // });            
+            chrome.storage.local.clear(function(){
+                console.log('storage cleared');
+            });            
         }
 
         previousDomain = currentDomain;
