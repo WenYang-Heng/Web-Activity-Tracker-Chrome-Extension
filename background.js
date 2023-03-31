@@ -1,35 +1,26 @@
-// let domainName;
-// let previousDomainName;
-// let enterTime;
-// let timeSpent;
-// let idleDetection = 15;
-// let idleTime = 0;
-// let totalIdleTime;
-// let idleInterval;
-
 let startTime;
 let timeOnSite;
 let previousDomain = null;
 let currentDomain = null;
 let currentDate;
 
-// chrome.tabs.onActivated.addListener(function(activeInfo){
-//     console.log("on activated event fires");
-//     chrome.tabs.get(activeInfo.tabId, function(tab){
-//         if(tab.url && tab.status === 'complete' && !tab.url.startsWith('chrome://')){
-//             let url = new URL(tab.url);
-//             currentDomain = url.hostname;
-//             if(currentDomain !== previousDomain){
-//                 timeSpent();
-//                 storage();
-//                 console.log("Time spent on " + previousDomain + ": " + timeOnSite);
-//             }else{
-//                 console.log("switched to the same domain");
-//             }
-//             startTime = new Date();
-//         }
-//     });
-// });
+chrome.tabs.onActivated.addListener(function(activeInfo){
+    console.log("on activated event fires");
+    chrome.tabs.get(activeInfo.tabId, function(tab){
+        if(tab.url && tab.status === 'complete' && !tab.url.startsWith('chrome://')){
+            let url = new URL(tab.url);
+            currentDomain = url.hostname;
+            if(currentDomain !== previousDomain){
+                timeSpent();
+                storage();
+                console.log("Time spent on " + previousDomain + ": " + timeOnSite);
+            }else{
+                console.log("switched to the same domain");
+            }
+            startTime = new Date();
+        }
+    });
+});
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     if(changeInfo.url && tab.url && !tab.url.startsWith('chrome://')){
@@ -52,6 +43,27 @@ function timeSpent(){
 
 function storage(){
     currentDate = getDate();
+
+    chrome.storage.local.get(null, function(result){
+        let keys = Object.keys(result);
+        console.log("Number of keys in storage: " + keys.length);
+
+        keys.sort(function(a, b) {
+            return new Date(a.split("-").join("-")).getTime() - new Date(b.split("-").join("-")).getTime();
+        });
+
+        if(keys.length > 7){
+            let oldestKey = keys.shift();
+            chrome.storage.local.remove(oldestKey, function(){
+                console.log(`Deleted oldest key: ${oldestKey}`);
+            });
+        }
+
+        for(let key in result){
+            console.log(key);
+        }
+    });
+
     chrome.storage.local.get(currentDate, function(result){
         //initialize the object if storage is empty
         if(Object.keys(result).length === 0){
@@ -60,8 +72,6 @@ function storage(){
             chrome.storage.local.set(day, function(){
                 console.log(`Created new object for ${currentDate}`);
             });
-        }else{
-            console.log(`${currentDate} object exists`);
         }
 
         if(previousDomain !== null){
@@ -100,11 +110,7 @@ function storage(){
                 console.log(`Pushed data to ${currentDate}`);
                 console.log(result[currentDate]);
                 console.log(result);
-            });
-
-            chrome.storage.local.clear(function(){
-                console.log('storage cleared');
-            });            
+            });       
         }
 
         previousDomain = currentDomain;
@@ -115,7 +121,7 @@ function storage(){
 
 function getDate() {
     let now = new Date();
-    now.setDate(now.getDate());
+    now.setDate(now.getDate() + 9);
     let date = now.toLocaleDateString('en-GB');
     return date.split('/').join('-');
   }
