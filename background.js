@@ -5,7 +5,6 @@ let currentDomain = null;
 let currentDate;
 
 chrome.tabs.onActivated.addListener(function(activeInfo){
-    console.log("on activated event fires");
     chrome.tabs.get(activeInfo.tabId, function(tab){
         if(tab.url && tab.status === 'complete' && !tab.url.startsWith('chrome://')){
             let url = new URL(tab.url);
@@ -46,22 +45,26 @@ function storage(){
 
     chrome.storage.local.get(null, function(result){
         let keys = Object.keys(result);
-        console.log("Number of keys in storage: " + keys.length);
 
         keys.sort(function(a, b) {
-            return new Date(a.split("-").join("-")).getTime() - new Date(b.split("-").join("-")).getTime();
-        });
+            let dateA = new Date(a.split("-").reverse().join("-")).getTime();
+            let dateB = new Date(b.split("-").reverse().join("-")).getTime();
+            return dateA - dateB;
+          });
 
         if(keys.length > 7){
+            console.log("keys exceeded");
             let oldestKey = keys.shift();
             chrome.storage.local.remove(oldestKey, function(){
                 console.log(`Deleted oldest key: ${oldestKey}`);
             });
         }
 
-        for(let key in result){
-            console.log(key);
-        }
+        console.log("Number of keys in storage: " + keys.length);
+
+        // chrome.storage.local.clear(function(){
+        //     console.log("all keys cleared");
+        // });
     });
 
     chrome.storage.local.get(currentDate, function(result){
@@ -87,7 +90,6 @@ function storage(){
             if(stats){
                     for(let i = 0; i < stats.length; i++){
                         if(stats[i].domain === previousDomain){
-                            console.log(previousDomain + " exist, increment total time");
                             stats[i].totalTime += timeOnSite;
                             check = true;
                             break;
@@ -109,19 +111,16 @@ function storage(){
             chrome.storage.local.set({[currentDate]: stats}, function(){
                 console.log(`Pushed data to ${currentDate}`);
                 console.log(result[currentDate]);
-                console.log(result);
             });       
         }
 
         previousDomain = currentDomain;
-        console.log("previous domain changed");
-        console.log("storage function finished.");
     });
 }
 
 function getDate() {
     let now = new Date();
-    now.setDate(now.getDate() + 9);
+    now.setDate(now.getDate());
     let date = now.toLocaleDateString('en-GB');
     return date.split('/').join('-');
   }
