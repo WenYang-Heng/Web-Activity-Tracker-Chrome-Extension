@@ -17,6 +17,7 @@
 
     "background":{
         "service_worker": "background.js",
+        "matches": ["<all_urls>", "!chrome://*"],
         "type": "module"
     },
 
