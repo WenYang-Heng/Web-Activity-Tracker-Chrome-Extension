@@ -7,16 +7,16 @@ let currentDate;
 chrome.tabs.onActivated.addListener(function(activeInfo){
     chrome.tabs.get(activeInfo.tabId, function(tab){
         if(tab.url && tab.status === 'complete' && !tab.url.startsWith('chrome://')){
-            let url = new URL(tab.url);
-            currentDomain = url.hostname;
-            if(currentDomain !== previousDomain){
-                timeSpent();
-                storage();
-                console.log("Time spent on " + previousDomain + ": " + timeOnSite);
-            }else{
-                console.log("switched to the same domain");
-            }
-            startTime = new Date();
+                let url = new URL(tab.url);
+                currentDomain = url.hostname;
+                if(currentDomain !== previousDomain){
+                    timeSpent();
+                    storage();
+                    console.log("Time spent on " + previousDomain + ": " + timeOnSite);
+                }else{
+                    console.log("switched to the same domain");
+                }
+                startTime = new Date();                
         }
     });
 });
@@ -124,10 +124,6 @@ function getDate() {
     let date = now.toLocaleDateString('en-GB');
     return date.split('/').join('-');
   }
-
-// chrome.tabs.onRemoved.addListener(function(tabid, removed){
-//     timeOnSite();
-// });
 
 // // function getSiteName(domainName){
 // //     console.log("Site: " + domainName );
