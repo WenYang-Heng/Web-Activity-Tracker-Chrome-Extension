@@ -3,7 +3,9 @@ let index;
 const ctx = document.getElementById('myChart').getContext('2d');
 const leftBtn = document.getElementById('left');
 const rightBtn = document.getElementById('right');
+const todayBtn = document.getElementById('today');
 const weeklyBtn = document.getElementById('weekly');
+
 const option = {
   responsive: true,
   maintainAspectRatio: false,
@@ -119,6 +121,11 @@ rightBtn.addEventListener('click', function(){
   if(index > keys.length - 1){
     index = 0;
   }
+  dailyChart();
+});
+
+todayBtn.addEventListener('click', function(){
+  index = keys.length - 1;
   dailyChart();
 });
 
