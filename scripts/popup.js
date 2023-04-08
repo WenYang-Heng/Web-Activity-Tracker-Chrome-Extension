@@ -14,7 +14,7 @@ const option = {
     x: {
       beginAtZero: false
     },
-  }
+  },
 }
 
 chrome.storage.local.get(null, function(result){
@@ -35,6 +35,7 @@ function dailyChart(){
         canvas.destroy();
       }
 
+      let totalTime = 0;
       let stats = result[currentDate];
       const domain = [];
       const timeSpent = [];
@@ -42,7 +43,10 @@ function dailyChart(){
       for(let i = 0; i < stats.length; i++){
         domain.push(stats[i].domain);
         timeSpent.push(stats[i].totalTime);
+        totalTime += stats[i].totalTime;
       }
+      console.log(convertTime(totalTime));
+      console.log(timeSpent);
 
       const myChart = new Chart(ctx, {
         type: 'bar',
@@ -57,7 +61,7 @@ function dailyChart(){
             barThickness: 45
           }]
         },
-        options: option
+        options: option,
       });
     } else {
       // display a message if no data exists for this day
