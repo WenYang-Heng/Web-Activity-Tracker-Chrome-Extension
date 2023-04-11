@@ -8,10 +8,18 @@
     <title>Time Tracker</title>
 </head>
 <body>
-    <div class="dashboard">
-        <div class="time">
-            Time Spent
+    <div class="dashboard area-1">
+        <div class="time-container">
+                <span class="title">Time Spent</span>
+            <span id="time-spent">
+                00H 00M 00S
+            </span>
         </div>
+
+        <div class="content top-site-daily">
+            <span id="domain"></span>
+        </div>
+
         <div class="chartArea">
             <button id="today">Show Today</button>
             <button id="weekly">Weekly</button>
@@ -19,6 +27,29 @@
             <button id="left">Left</button>
             <button id="right">Right</button>
         </div>        
+    </div>
+
+    <div class="dashboard area-2">
+        <div class="time-container">
+            <span class="title">Time Spent</span>
+        <span id="time-spent-dates">
+            00H 00M 00S
+        </span>
+        </div>
+        <div class="chartArea">
+            <canvas id="myChart-2"></canvas>
+            <input type="date" id="startDate">
+            <input type="date" id="endDate">
+        </div>
+
+        <div class="content average-week">
+            <span class="title">Daily Average</span>
+            <span id="average"></span>
+        </div>
+
+        <div class="content top-site-week">
+            
+        </div>
     </div>
 
     <script src="scripts/library/chart.js-4.2.1/package/dist/chart.umd.js"></script>

@@ -1,10 +1,19 @@
 let keys = [];
 let index;
+let hours = 0;
+let minutes = 0;
+let seconds = 0;
+const date = [];
+const totalTime = [];
 const ctx = document.getElementById('myChart').getContext('2d');
+const ctx2 = document.getElementById('myChart-2').getContext('2d');
 const leftBtn = document.getElementById('left');
 const rightBtn = document.getElementById('right');
 const todayBtn = document.getElementById('today');
 const weeklyBtn = document.getElementById('weekly');
+const datePicker = document.querySelectorAll('input');
+let startDate = document.getElementById('startDate');
+let endDate = document.getElementById('endDate');
 
 const option = {
   responsive: true,
@@ -37,16 +46,34 @@ function dailyChart(){
 
       let totalTime = 0;
       let stats = result[currentDate];
-      const domain = [];
-      const timeSpent = [];
+      const data = [];
 
       for(let i = 0; i < stats.length; i++){
-        domain.push(stats[i].domain);
-        timeSpent.push(stats[i].totalTime);
+        // domain.push(stats[i].domain);
+        // timeSpent.push(Math.floor(stats[i].totalTime / 1000));
+        data.push({domain: stats[i].domain, timeSpent: Math.floor(stats[i].totalTime / 1000)})
         totalTime += stats[i].totalTime;
       }
-      console.log(convertTime(totalTime));
-      console.log(timeSpent);
+
+      data.sort(function(a, b){
+        return b.timeSpent - a.timeSpent;
+      });
+
+      const domain = data.map(function(item){
+        return item.domain;
+      });
+
+      const timeSpent = data.map(function(item){
+        return item.timeSpent;
+      });
+
+      console.log(domain);
+
+      convertTime(totalTime);
+
+      document.getElementById('time-spent').innerText = hours + "h " + minutes + "m " + seconds + "s";
+
+      document.getElementById('domain').innerText = domain[0];
 
       const myChart = new Chart(ctx, {
         type: 'bar',
@@ -72,29 +99,42 @@ function dailyChart(){
 
 function weeklyChart(){
   chrome.storage.local.get(null, function(result){
-    console.log(result);
-    const date = [];
-    const totalTime = [];
     for(let dateKey in result){
       let data = result[dateKey];
-      console.log(dateKey);
       date.push(dateKey);
       let dailySum = 0;
       for(let i = 0; i < data.length; i++){
-        console.log(data[i].domain, data[i].totalTime);
         dailySum += data[i].totalTime;
       }
-      console.log(dailySum);
       totalTime.push(dailySum);
     }
 
-    let canvas  = Chart.getChart("myChart");
+    console.log(totalTime);
+
+    convertTime(avgTime(totalTime));
+    document.getElementById('average').innerText = hours + "h " + minutes + "m " + seconds + "s";
+
+    convertTime(sumTime(totalTime));
+    document.getElementById('time-spent-dates').innerText = hours + "h " + minutes + "m " + seconds + "s";
+
+
+    let minDate = date[0].split("-").reverse().join("-");
+    let maxDate = date[date.length - 1].split("-").reverse().join("-");
+
+    startDate.setAttribute('value', minDate);
+    endDate.setAttribute('value', maxDate);
+    startDate.setAttribute('min', minDate);
+    startDate.setAttribute('max', maxDate);
+    endDate.setAttribute('min', minDate);
+    endDate.setAttribute('max', maxDate);
+
+    let canvas  = Chart.getChart("myChart-2");
 
     if(canvas != undefined){
       canvas.destroy();
     }
 
-    const myChart = new Chart(ctx, {
+    const myChart = new Chart(ctx2, {
       type: 'bar',
       data:{
         labels: date,
@@ -110,6 +150,53 @@ function weeklyChart(){
       options: option
     });
   });
+}
+
+function convertTime(timeInMs){
+  seconds = Math.floor((timeInMs / 1000) % 60),
+  minutes = Math.floor((timeInMs / (1000 * 60)) % 60),
+  hours = Math.floor((timeInMs / (1000 * 60 * 60)) % 24);
+
+  if(hours < 10){
+    hours = "0" + hours.toString();
+  }
+  else{
+    hours = hours.toString();
+  }
+
+  if(minutes < 10){
+    minutes = "0" + minutes.toString();
+  }
+  else{
+    minutes = minutes.toString();
+  }
+
+  if(seconds < 10){
+    seconds = "0" + seconds.toString();
+  }
+  else{
+    seconds = seconds.toString();
+  }
+
+}
+
+function avgTime (time){
+  let sum = 0;
+  console.log("calc avg time");
+  for (let i = 0; i < time.length; i++){
+    sum += time[i];
+  }
+
+  return (Math.floor(sum / time.length));
+}
+
+function sumTime(time){
+  let sum = 0;
+  for (let i = 0; i < time.length; i++){
+    sum += time[i];
+  }
+
+  return sum;
 }
 
 leftBtn.addEventListener('click', function(){
@@ -136,3 +223,42 @@ todayBtn.addEventListener('click', function(){
 weeklyBtn.addEventListener('click', function(){
   weeklyChart();
 });
+
+datePicker.forEach(function(dateSelect){
+  dateSelect.addEventListener('change', function(){
+    console.log("start date: " + startDate.value);
+    console.log("end date: " + endDate.value);
+    let myChart = Chart.getChart("myChart-2");
+    if(myChart != undefined){
+      let dateCopy = [...date];
+      let totalTimeCopy = [...totalTime];
+
+      for(let i = 0; i < dateCopy.length; i++){
+        dateCopy[i] = dateCopy[i].split("-").reverse().join("-");
+      }
+
+      console.log(totalTimeCopy);
+      //get dates by index
+      const startDateIndex = dateCopy.indexOf(startDate.value);
+      const endDateIndex = dateCopy.indexOf(endDate.value);
+      console.log("start index" + startDateIndex);
+      console.log("end index: " + endDateIndex);
+
+      //slice array between 2 dates
+      const filterDate = dateCopy.slice(startDateIndex, endDateIndex + 1);
+      console.log(filterDate);
+      //replace labels
+      myChart.data.labels = filterDate;
+
+      //replace data
+      const filterTotalTime = totalTimeCopy.slice(startDateIndex, endDateIndex + 1);
+      console.log(filterTotalTime);
+      myChart.data.datasets[0].data = filterTotalTime;
+      myChart.update();    
+    }
+    else{
+      console.log("empty chart");
+    }
+  });  
+});
+
