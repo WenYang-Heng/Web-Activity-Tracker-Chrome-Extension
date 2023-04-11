@@ -129,7 +129,9 @@ function weeklyChart(){
       return b.total - a.total;
     });
     
-    console.log(domainTotals);
+    document.getElementsByClassName('top-1')[0].innerText = domainTotals[0].domain;
+    document.getElementsByClassName('top-2')[0].innerText = domainTotals[1].domain;
+    document.getElementsByClassName('top-3')[0].innerText = domainTotals[2].domain;
 
     convertTime(avgTime(totalTime));
     document.getElementById('average').innerText = hours + "h " + minutes + "m " + seconds + "s";
