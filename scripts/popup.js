@@ -99,17 +99,37 @@ function dailyChart(){
 
 function weeklyChart(){
   chrome.storage.local.get(null, function(result){
+    let totalTimeByDomain = {};
     for(let dateKey in result){
       let data = result[dateKey];
       date.push(dateKey);
       let dailySum = 0;
       for(let i = 0; i < data.length; i++){
+        const domainByDates = data[i].domain;
+        const timeByDomain = data[i].totalTime;
+        if(totalTimeByDomain[domainByDates]){
+          totalTimeByDomain[domainByDates] += timeByDomain;
+        }
+        else{
+          totalTimeByDomain[domainByDates] = timeByDomain;
+        }
         dailySum += data[i].totalTime;
       }
       totalTime.push(dailySum);
+    }      
+
+    // create an array of domain names and their total times
+    let domainTotals = [];
+    for (let domain in totalTimeByDomain) {
+      let total = totalTimeByDomain[domain];
+      domainTotals.push({ domain: domain, total: total });
     }
 
-    console.log(totalTime);
+    domainTotals.sort(function(a, b){
+      return b.total - a.total;
+    });
+    
+    console.log(domainTotals);
 
     convertTime(avgTime(totalTime));
     document.getElementById('average').innerText = hours + "h " + minutes + "m " + seconds + "s";

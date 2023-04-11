@@ -9,18 +9,16 @@
 </head>
 <body>
     <div class="dashboard area-1">
-        <div class="time-container">
-                <span class="title">Time Spent</span>
-            <span id="time-spent">
-                00H 00M 00S
-            </span>
+        <div class="box time-container">
+            <span class="title">Time Spent</span>
+            <span id="time-spent"></span>
         </div>
 
-        <div class="content top-site-daily">
+        <div class="box top-site-daily">
             <span id="domain"></span>
         </div>
 
-        <div class="chartArea">
+        <div class="box chartArea">
             <button id="today">Show Today</button>
             <button id="weekly">Weekly</button>
             <canvas id="myChart"></canvas>
@@ -30,25 +28,27 @@
     </div>
 
     <div class="dashboard area-2">
-        <div class="time-container">
+        <div class="box time-container">
             <span class="title">Time Spent</span>
         <span id="time-spent-dates">
-            00H 00M 00S
         </span>
         </div>
-        <div class="chartArea">
+        <div class="box chartArea">
             <canvas id="myChart-2"></canvas>
             <input type="date" id="startDate">
             <input type="date" id="endDate">
         </div>
 
-        <div class="content average-week">
+        <div class="box average-week">
             <span class="title">Daily Average</span>
             <span id="average"></span>
         </div>
 
-        <div class="content top-site-week">
-            
+        <div class="box top-site-week">
+            <div class="title">Top Visited Site</div>
+            <div class="site top-1"></div>
+            <div class="site top-2"></div>
+            <div class="site top-3"></div>
         </div>
     </div>
 
