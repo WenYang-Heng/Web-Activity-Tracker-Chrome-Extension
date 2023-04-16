@@ -22,24 +22,25 @@ initializeCurrentDomain();
 
 // Rest of your original code
 
-chrome.tabs.onActivated.addListener(function(activeInfo){
-    chrome.tabs.get(activeInfo.tabId, function(tab){
-        if(tab.url && tab.status === 'complete' && !tab.url.startsWith('chrome://')){
-            let url = new URL(tab.url);
-            currentDomain = url.hostname;
-            if(currentDomain !== previousDomain){
-                timeSpent();
-                if(timeOnSite > 0){
-                    storage();
-                    console.log("Time spent on " + previousDomain + ": " + timeOnSite);                        
-                }
-                startTime = new Date();  
-            }else{
-                console.log("switched to the same domain");
-            }                         
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+    chrome.tabs.get(activeInfo.tabId, function (tab) {
+      if (tab.url && tab.status === "complete" && !tab.url.startsWith("chrome://")) {
+        let url = new URL(tab.url);
+        currentDomain = url.hostname;
+        timeSpent(); // Move this line out of the if condition
+        if (currentDomain !== previousDomain) {
+          if (timeOnSite > 0) {
+            storage();
+            console.log("Time spent on " + previousDomain + ": " + timeOnSite);
+          }
+          startTime = new Date();
+        } else {
+          console.log("switched to the same domain");
         }
+      }
     });
-});
+  });
+  
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     console.log("page refreshed");
