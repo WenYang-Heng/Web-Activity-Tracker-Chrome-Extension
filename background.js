@@ -20,7 +20,15 @@ function initializeCurrentDomain() {
 // Call the new function to initialize the current domain
 initializeCurrentDomain();
 
-// Rest of your original code
+chrome.tabs.onCreated.addListener(function (tab) {
+    if (previousDomain !== null) {
+      timeSpent();
+      if (timeOnSite > 0) {
+        storage();
+        console.log("Time spent on " + previousDomain + ": " + timeOnSite);
+      }
+    }
+  });
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
     chrome.tabs.get(activeInfo.tabId, function (tab) {
