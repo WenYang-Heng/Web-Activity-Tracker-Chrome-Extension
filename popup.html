@@ -7,48 +7,70 @@
     <link rel="stylesheet" href="styles/popup.css">
     <title>Time Tracker</title>
 </head>
+
 <body>
+    <div class="navigation">
+        <div class="toggle today">
+            <button id="today">Daily</button>
+        </div>
+
+        <div class="toggle weekly">
+            <button id="weekly">Weekly</button>
+        </div>
+    </div>
+
     <div class="dashboard area-1">
-        <div class="box time-container">
-            <span class="title">Time Spent</span>
-            <span id="time-spent"></span>
+        <div class="box time-container-1">
+            <div class="title">Time Spent</div>
+            <div id="time-spent"></div>
         </div>
 
         <div class="box top-site-daily">
-            <span id="domain"></span>
+            <div class="title">Top Site</div>
+            <div id="domain"></div>
+        </div>
+
+        <div class="box num-of-site">
+            <div class="title">No. of Site Visited</div>
+            <div id="site-num"></div>
         </div>
 
         <div class="box chartArea">
-            <button id="today">Show Today</button>
-            <button id="weekly">Weekly</button>
+            <div class="date-cycle">
+                <button id="left">Left</button>
+                <span id="date">Today</span>
+                <button id="right">Right</button>                
+            </div>
             <canvas id="myChart"></canvas>
-            <button id="left">Left</button>
-            <button id="right">Right</button>
         </div>        
     </div>
 
     <div class="dashboard area-2">
-        <div class="box time-container">
-            <span class="title">Time Spent</span>
-        <span id="time-spent-dates">
-        </span>
+        <div class="box time-container-2">
+            <div class="title">Time Spent</div>
+        <div id="time-spent-dates">
         </div>
-        <div class="box chartArea">
+        </div>
+        <div class="box chartArea-2">
+            <select name="domain-dropdown" id="domain-dropdown"></select>
             <canvas id="myChart-2"></canvas>
             <input type="date" id="startDate">
             <input type="date" id="endDate">
         </div>
 
         <div class="box average-week">
-            <span class="title">Daily Average</span>
-            <span id="average"></span>
+            <div class="title">Daily Average</div>
+            <div id="average"></div>
         </div>
 
         <div class="box top-site-week">
             <div class="title">Top Visited Site</div>
             <div class="site top-1"></div>
+            <span id="top-site-1"></span>
             <div class="site top-2"></div>
+            <span id="top-site-2"></span>
             <div class="site top-3"></div>
+            <span id="top-site-3"></span>
         </div>
     </div>
 

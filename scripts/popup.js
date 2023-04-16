@@ -3,8 +3,10 @@ let index;
 let hours = 0;
 let minutes = 0;
 let seconds = 0;
-const date = [];
-const totalTime = [];
+let date = [];
+let totalTime = [];
+const dashboard_1 = document.querySelector('.area-1');
+const dashboard_2 = document.querySelector('.area-2');
 const ctx = document.getElementById('myChart').getContext('2d');
 const ctx2 = document.getElementById('myChart-2').getContext('2d');
 const leftBtn = document.getElementById('left');
@@ -21,15 +23,37 @@ const option = {
   indexAxis: 'y',
   scales: {
     x: {
-      beginAtZero: false
+      beginAtZero: false,
     },
   },
+  plugins: {
+    legend: {
+      display: true,
+      position: 'right'
+    }
+  }
+}
+
+const option2 = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    x: {
+      beginAtZero: false,
+    },
+  },
+  plugins: {
+    legend: {
+      display: false
+    }
+  }
 }
 
 chrome.storage.local.get(null, function(result){
   keys = Object.keys(result);
   index = keys.length - 1;
   dailyChart();
+  dashboard_2.style.display = 'none';
 });
 
 function dailyChart(){
@@ -67,7 +91,7 @@ function dailyChart(){
         return item.timeSpent;
       });
 
-      console.log(domain);
+      document.getElementById('date').innerText = currentDate;
 
       convertTime(totalTime);
 
@@ -75,17 +99,21 @@ function dailyChart(){
 
       document.getElementById('domain').innerText = domain[0];
 
+      document.getElementById('site-num').innerText = domain.length;
+
+      const colors = generateColors(domain.length);
+
       const myChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'pie',
         data: {
           labels: domain,
           datasets:[{
             label: currentDate,
             data: timeSpent,
-            backgroundColor: 'rgba(251, 41, 41, 0.8)',
-            borderColor: 'rgba(251, 41, 41, 0.8)',
-            borderWidth: 0,
-            barThickness: 45
+            backgroundColor: colors,
+            borderColor: colors,
+            barThickness: 30,
+            maxBarThickness: 30
           }]
         },
         options: option,
@@ -98,11 +126,18 @@ function dailyChart(){
 }
 
 function weeklyChart(){
+  if(dashboard_1.style.display === 'block'){
+    dashboard_1.style.display == 'none';
+    dashboard_2.style.display == 'block';
+  }
+
   chrome.storage.local.get(null, function(result){
     let totalTimeByDomain = {};
-    for(let dateKey in result){
-      let data = result[dateKey];
-      date.push(dateKey);
+    let dateKey = [];
+    let totalTimeByDate = [];
+    for(let date in result){
+      let data = result[date];
+      dateKey.push(date);
       let dailySum = 0;
       for(let i = 0; i < data.length; i++){
         const domainByDates = data[i].domain;
@@ -115,9 +150,12 @@ function weeklyChart(){
         }
         dailySum += data[i].totalTime;
       }
-      totalTime.push(dailySum);
-    }      
+      totalTimeByDate.push(dailySum);
+    }
 
+    date = dateKey;
+    totalTime = totalTimeByDate;
+    
     // create an array of domain names and their total times
     let domainTotals = [];
     for (let domain in totalTimeByDomain) {
@@ -129,9 +167,18 @@ function weeklyChart(){
       return b.total - a.total;
     });
     
-    document.getElementsByClassName('top-1')[0].innerText = domainTotals[0].domain;
-    document.getElementsByClassName('top-2')[0].innerText = domainTotals[1].domain;
-    document.getElementsByClassName('top-3')[0].innerText = domainTotals[2].domain;
+    document.getElementsByClassName('top-1')[0].innerText = "1. " + domainTotals[0].domain;
+    document.getElementsByClassName('top-2')[0].innerText = "2. " + domainTotals[1].domain;
+    document.getElementsByClassName('top-3')[0].innerText = "3. " + domainTotals[2].domain;
+
+    convertTime(domainTotals[0].total);
+    document.getElementById('top-site-1').innerText = hours + "h " + minutes + "m " + seconds + "s";
+
+    convertTime(domainTotals[1].total);
+    document.getElementById('top-site-2').innerText = hours + "h " + minutes + "m " + seconds + "s";
+
+    convertTime(domainTotals[2].total);
+    document.getElementById('top-site-3').innerText = hours + "h " + minutes + "m " + seconds + "s";
 
     convertTime(avgTime(totalTime));
     document.getElementById('average').innerText = hours + "h " + minutes + "m " + seconds + "s";
@@ -169,7 +216,7 @@ function weeklyChart(){
           barThickness: 45
         }],
       },
-      options: option
+      options: option2
     });
   });
 }
@@ -221,6 +268,17 @@ function sumTime(time){
   return sum;
 }
 
+function generateColors(length) {
+  const colors = [];
+  const hueStep = 360 / length;
+  for (let i = 0; i < length; i++) {
+    const hue = i * hueStep;
+    const color = `hsl(${hue}, 70%, 50%)`;
+    colors.push(color);
+  }
+  return colors;
+}
+
 leftBtn.addEventListener('click', function(){
   index--;
   if(index < 0){
@@ -238,11 +296,20 @@ rightBtn.addEventListener('click', function(){
 });
 
 todayBtn.addEventListener('click', function(){
+  if(dashboard_1.style.display === 'none'){
+    dashboard_1.style.display = 'grid';
+    dashboard_2.style.display = 'none';
+  }
   index = keys.length - 1;
   dailyChart();
 });
 
 weeklyBtn.addEventListener('click', function(){
+  if(dashboard_2.style.display === 'none'){
+    dashboard_2.style.display = 'grid';
+    dashboard_1.style.display = 'none';
+  }
+
   weeklyChart();
 });
 

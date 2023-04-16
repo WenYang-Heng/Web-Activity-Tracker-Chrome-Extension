@@ -25,6 +25,7 @@
         "tabs",
         "storage",
         "notifications",
-        "idle"
+        "idle",
+        "downloads"
     ]
 }
