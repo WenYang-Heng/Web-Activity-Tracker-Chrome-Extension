@@ -41,7 +41,6 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     });
   });
   
-
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     console.log("page refreshed");
     if(changeInfo.url && tab.url && !tab.url.startsWith('chrome://')){
