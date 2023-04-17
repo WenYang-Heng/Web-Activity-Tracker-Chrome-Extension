@@ -103,18 +103,28 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
 
 // chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 //     // Check if there are any other tabs open in the window
-//     chrome.tabs.query({currentWindow: true}, function(tabs) {
-//         if (tabs.length === 0) {
-//             // previousDomain = new URL(tabs.url).hostname;
-//             timeSpent();
-//             // The closed tab was the last one in the window
-//             // Track the time spent on the previous domain
-//             console.log("time spent on " + previousDomain + " :" + timeOnSite); 
-//             storage();
-//             // Reset the previous domain to null
-//         } 
+//     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+//         if(tabs.length === 0 || removeInfo.isWindowClosing){
+//             if(tabId === tabs.id){
+//                 timeSpent();
+//                 if(timeOnSite > 0){
+//                     storage(previousDomain, timeOnSite);
+//                     console.log("Time spent on " + previousDomain + ": " + timeOnSite);
+//                 }
+//             }
+//         }
 //     });
 // });
+
+chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+        if(tabs.length === 0 && removeInfo.isWindowClosing){
+            timeSpent();
+            storage(previousDomain, timeOnSite);
+        }
+    });
+});
+  
 
 function timeSpent(){
     console.log("Calculataing time, idle time is :" + totalIdleTime)

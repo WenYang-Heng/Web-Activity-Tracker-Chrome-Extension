@@ -7,28 +7,54 @@ html, body{
     background-color: #F8F8FF;
 }
 
-.navigation{    
+button {
+    cursor: pointer;
+}
+  
+.navigation {
     display: grid;
-    grid-template-columns: (2, 1fr);
-    padding: 20px 20px 0px;
-    gap: 20px;
+    grid-template-columns: repeat(8, 1fr);
+    padding: 10px 10px 0px;
+    gap: 10px;
 }
 
-.navigation button{
-    font-size: 15px;
-}
-
-.toggle{
-    margin: 0 auto;
+.navigation .toggle {
+    width: 100%;
 }
 
 .today{
-    grid-column: 1 / 2;
+    grid-column: 3 / 5;
 }
 
 .weekly{
-    grid-column: 2 / 3;
+    grid-column: 5 / 7;
 }
+
+.navigation button {
+    font-size: 17px;
+    font-weight: bold;
+    width: 100%;
+    padding: 10px;
+    display: block;
+    border: 2px solid green;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+}
+
+.navigation button:hover {
+    background-color: #45a049;
+    border: 2px solid #45a049;
+    color: white;
+}
+
+.toggle {
+margin: 0 auto;
+}
+
 
 .dashboard{
     height: 700px;
