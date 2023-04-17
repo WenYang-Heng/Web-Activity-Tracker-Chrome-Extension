@@ -14,6 +14,7 @@ const rightBtn = document.getElementById('right');
 const todayBtn = document.getElementById('today');
 const weeklyBtn = document.getElementById('weekly');
 const datePicker = document.querySelectorAll('input');
+const alarmBtn = document.getElementById('alarm');
 let startDate = document.getElementById('startDate');
 let endDate = document.getElementById('endDate');
 
@@ -279,6 +280,24 @@ function generateColors(length) {
   return colors;
 }
 
+function notifications(){
+
+  let notificationMsg = {
+    type: 'basic',
+    iconUrl: 'icons/icon-32.png',
+    title: 'Alarm',
+    message: 'Hey, time to take a break'
+  };
+
+  chrome.notifications.create(null, notificationMsg, function (notificationId) {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError);
+    } else {
+      console.log('Notification created with ID:', notificationId);
+    }
+  });
+}
+
 leftBtn.addEventListener('click', function(){
   index--;
   if(index < 0){
@@ -311,6 +330,10 @@ weeklyBtn.addEventListener('click', function(){
   }
 
   weeklyChart();
+});
+
+alarmBtn.addEventListener('click', function(){
+  notifications();
 });
 
 datePicker.forEach(function(dateSelect){

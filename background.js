@@ -80,27 +80,53 @@ chrome.tabs.onActivated.addListener(function (activeInfo){
     });
 });
   
+// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
+//     if(changeInfo.url && tab.url && !tab.url.startsWith(extensionInternal)){
+//         console.log("page has refreshed.");
+//         currentDomain = new URL(changeInfo.url).hostname;
+//         if(currentDomain === newTab){
+//             previousDomain = currentDomain;
+//         }
+//         else if(previousDomain === newTab && currentDomain !== newTab){
+//             startTime = new Date();
+//             console.log("refreshed from " + previousDomain + " to " + currentDomain + ". Start tracking now");
+//             previousDomain = currentDomain;
+//         }
+//         else if(previousDomain !== newTab && currentDomain !== newTab){
+//             if(previousDomain !== currentDomain){
+//                 timeSpent();
+//                 storage(previousDomain, timeOnSite);
+//                 startTime = new Date();
+//                 previousDomain = currentDomain;
+//             }
+//         }
+//     }
+// });
+
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
-    if(changeInfo.url && tab.url && !tab.url.startsWith(extensionInternal)){
-        console.log("page has refreshed.");
-        currentDomain = new URL(changeInfo.url).hostname;
-        if(currentDomain === newTab){
-            previousDomain = currentDomain;
-        }
-        else if(previousDomain === newTab && currentDomain !== newTab){
-            startTime = new Date();
-            console.log("refreshed from " + previousDomain + " to " + currentDomain + ". Start tracking now");
-            previousDomain = currentDomain;
-        }
-        else if(previousDomain !== newTab && currentDomain !== newTab){
-            if(previousDomain !== currentDomain){
-                timeSpent();
-                storage(previousDomain, timeOnSite);
-                startTime = new Date();
+    if(changeInfo.status === 'complete'){
+        if(tab.url && !tab.url.startsWith(extensionInternal)){
+            console.log("page has refreshed.");
+            currentDomain = new URL(tab.url).hostname;
+            if(currentDomain === newTab){
                 previousDomain = currentDomain;
+            }
+            else if(previousDomain === newTab && currentDomain !== newTab){
+                startTime = new Date();
+                console.log("refreshed from " + previousDomain + " to " + currentDomain + ". Start tracking now");
+                previousDomain = currentDomain;
+            }
+            else if(previousDomain !== newTab && currentDomain !== newTab){
+                if(previousDomain !== currentDomain){
+                    timeSpent();
+                    storage(previousDomain, timeOnSite);
+                    startTime = new Date();
+                    previousDomain = currentDomain;
+                }
             }
         }
     }
+
 });
 
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
