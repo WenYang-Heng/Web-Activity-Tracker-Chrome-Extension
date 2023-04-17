@@ -8,6 +8,7 @@ let totalIdleTime = 0;
 const idleDetection = 15;
 const extensionInternal = "chrome://extensions";
 const newTab = "newtab";
+let currentActiveTabId = null;
 
 // New function to initialize the current domain when Chrome starts
 function initializeCurrentDomain() {
@@ -49,6 +50,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
 });
 
 chrome.tabs.onActivated.addListener(function (activeInfo){
+    currentActiveTabId = activeInfo.tabId;
     chrome.tabs.get(activeInfo.tabId, function (tab){
         if (tab.url && tab.status === "complete" && !tab.url.startsWith(extensionInternal)){
             currentDomain = new URL(tab.url).hostname;
@@ -101,28 +103,24 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     }
 });
 
-// chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-//     // Check if there are any other tabs open in the window
-//     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-//         if(tabs.length === 0 || removeInfo.isWindowClosing){
-//             if(tabId === tabs.id){
-//                 timeSpent();
-//                 if(timeOnSite > 0){
-//                     storage(previousDomain, timeOnSite);
-//                     console.log("Time spent on " + previousDomain + ": " + timeOnSite);
-//                 }
-//             }
-//         }
-//     });
-// });
-
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-        if(tabs.length === 0 && removeInfo.isWindowClosing){
-            timeSpent();
-            storage(previousDomain, timeOnSite);
+    if(removeInfo.isWindowClosing){
+        if (removeInfo.isWindowClosing) {
+            if (tabId === currentActiveTabId) {
+                timeSpent();
+                storage(previousDomain, timeOnSite);
+            }
         }
-    });
+    }
+    else{
+        chrome.tabs.query({currentWindow: true}, function(tabs){
+            if(tabs.length === 0){
+                console.log("closing last tab");
+                timeSpent();
+                storage(previousDomain, timeOnSite);                
+            }
+        });
+    }
 });
   
 
@@ -168,7 +166,7 @@ function storage(domainToBeInserted, timeOnDomain){
             });
         }
 
-        if(domainToBeInserted !== null && timeOnDomain !== null){
+        if(domainToBeInserted !== null && domainToBeInserted !== newTab && timeOnDomain !== null){
             let record = {
                 domain: domainToBeInserted,
                 totalTime: timeOnDomain
