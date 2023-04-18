@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Time Tracker",
+    "name": "Chrome Extension Web Activity Tracker",
     "description": "Shows time spent on the browser.",
     "version": "1.0",
 
