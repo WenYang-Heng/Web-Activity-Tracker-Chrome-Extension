@@ -9,15 +9,6 @@
 </head>
 
 <body>
-    <div class="alarm-container">
-        <div id="timer">
-            
-        </div>
-        <div class="alarm-Btn">
-            <button id="alarm">Start</button>
-            <button id="reset">Reset</button>
-        </div>
-    </div>
     <div class="navigation">
         <div class="toggle today">
             <button id="today">Daily</button>
@@ -45,9 +36,9 @@
 
         <div class="box chartArea">
             <div class="date-cycle">
-                <button id="left">Left</button>
+                <button id="left"><img src="icons/arrow-left-solid.svg"></button>
                 <span id="date">Today</span>
-                <button id="right">Right</button>                
+                <button id="right"><img src="icons/arrow-right-solid.svg"></button>                
             </div>
             <canvas id="myChart"></canvas>
         </div>        
@@ -60,10 +51,7 @@
         </div>
         </div>
         <div class="box chartArea-2">
-            <select name="domain-dropdown" id="domain-dropdown"></select>
             <canvas id="myChart-2"></canvas>
-            <input type="date" id="startDate">
-            <input type="date" id="endDate">
         </div>
 
         <div class="box average-week">

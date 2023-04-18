@@ -80,29 +80,6 @@ chrome.tabs.onActivated.addListener(function (activeInfo){
     });
 });
   
-// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
-//     if(changeInfo.url && tab.url && !tab.url.startsWith(extensionInternal)){
-//         console.log("page has refreshed.");
-//         currentDomain = new URL(changeInfo.url).hostname;
-//         if(currentDomain === newTab){
-//             previousDomain = currentDomain;
-//         }
-//         else if(previousDomain === newTab && currentDomain !== newTab){
-//             startTime = new Date();
-//             console.log("refreshed from " + previousDomain + " to " + currentDomain + ". Start tracking now");
-//             previousDomain = currentDomain;
-//         }
-//         else if(previousDomain !== newTab && currentDomain !== newTab){
-//             if(previousDomain !== currentDomain){
-//                 timeSpent();
-//                 storage(previousDomain, timeOnSite);
-//                 startTime = new Date();
-//                 previousDomain = currentDomain;
-//             }
-//         }
-//     }
-// });
-
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     if(changeInfo.status === 'complete'){
         if(tab.url && !tab.url.startsWith(extensionInternal)){
@@ -126,7 +103,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
             }
         }
     }
-
 });
 
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
@@ -167,13 +143,13 @@ function storage(domainToBeInserted, timeOnDomain){
             return dateA - dateB;
           });
 
-        // if(keys.length > 7){
-        //     console.log("keys exceeded");
-        //     let oldestKey = keys.shift();
-        //     // chrome.storage.local.remove(oldestKey, function(){
-        //     //     console.log(`Deleted oldest key: ${oldestKey}`);
-        //     // });
-        // }
+        if(keys.length > 7){
+            console.log("keys exceeded");
+            let oldestKey = keys.shift();
+            chrome.storage.local.remove(oldestKey, function(){
+                console.log(`Deleted oldest key: ${oldestKey}`);
+            });
+        }
 
         // console.log("Number of keys in storage: " + keys.length);
 
@@ -215,11 +191,7 @@ function storage(domainToBeInserted, timeOnDomain){
             }
             
             if(!check){
-                if(Array.isArray(stats)){
                 stats.push(record);
-                } else {
-                stats = [record];
-                }
             }
 
             chrome.storage.local.set({[currentDate]: stats}, function(){
