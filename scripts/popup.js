@@ -14,8 +14,6 @@ const rightBtn = document.getElementById('right');
 const todayBtn = document.getElementById('today');
 const weeklyBtn = document.getElementById('weekly');
 const datePicker = document.querySelectorAll('input');
-// let startDate = document.getElementById('startDate');
-// let endDate = document.getElementById('endDate');
 
 const option = {
   responsive: true,
