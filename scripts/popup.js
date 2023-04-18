@@ -136,6 +136,7 @@ function weeklyChart(){
   }
 
   chrome.storage.local.get(null, function(result){
+    console.log(result);
     let totalTimeByDomain = {};
     let dateKey = [];
     let totalTimeByDate = [];
@@ -171,18 +172,23 @@ function weeklyChart(){
       return b.total - a.total;
     });
     
-    document.getElementsByClassName('top-1')[0].innerText = "1. " + domainTotals[0].domain;
-    document.getElementsByClassName('top-2')[0].innerText = "2. " + domainTotals[1].domain;
-    document.getElementsByClassName('top-3')[0].innerText = "3. " + domainTotals[2].domain;
-
-    convertTime(domainTotals[0].total);
-    document.getElementById('top-site-1').innerText = hours + "h " + minutes + "m " + seconds + "s";
-
-    convertTime(domainTotals[1].total);
-    document.getElementById('top-site-2').innerText = hours + "h " + minutes + "m " + seconds + "s";
-
-    convertTime(domainTotals[2].total);
-    document.getElementById('top-site-3').innerText = hours + "h " + minutes + "m " + seconds + "s";
+    if (domainTotals[0]) {
+      document.getElementsByClassName('top-1')[0].innerText = "1. " + domainTotals[0].domain;
+      convertTime(domainTotals[0].total);
+      document.getElementById('top-site-1').innerText = hours + "h " + minutes + "m " + seconds + "s";
+    }
+    
+    if (domainTotals[1]) {
+      document.getElementsByClassName('top-2')[0].innerText = "2. " + domainTotals[1].domain;
+      convertTime(domainTotals[1].total);
+      document.getElementById('top-site-2').innerText = hours + "h " + minutes + "m " + seconds + "s";
+    }
+    
+    if (domainTotals[2]) {
+      document.getElementsByClassName('top-3')[0].innerText = "3. " + domainTotals[2].domain;
+      convertTime(domainTotals[2].total);
+      document.getElementById('top-site-3').innerText = hours + "h " + minutes + "m " + seconds + "s";
+    }
 
     convertTime(avgTime(totalTime));
     document.getElementById('average').innerText = hours + "h " + minutes + "m " + seconds + "s";
@@ -306,41 +312,4 @@ weeklyBtn.addEventListener('click', function(){
   weeklyChart();
 });
 
-// datePicker.forEach(function(dateSelect){
-//   dateSelect.addEventListener('change', function(){
-//     console.log("start date: " + startDate.value);
-//     console.log("end date: " + endDate.value);
-//     let myChart = Chart.getChart("myChart-2");
-//     if(myChart != undefined){
-//       let dateCopy = [...date];
-//       let totalTimeCopy = [...totalTime];
-
-//       for(let i = 0; i < dateCopy.length; i++){
-//         dateCopy[i] = dateCopy[i].split("-").reverse().join("-");
-//       }
-
-//       console.log(totalTimeCopy);
-//       //get dates by index
-//       const startDateIndex = dateCopy.indexOf(startDate.value);
-//       const endDateIndex = dateCopy.indexOf(endDate.value);
-//       console.log("start index" + startDateIndex);
-//       console.log("end index: " + endDateIndex);
-
-//       //slice array between 2 dates
-//       const filterDate = dateCopy.slice(startDateIndex, endDateIndex + 1);
-//       console.log(filterDate);
-//       //replace labels
-//       myChart.data.labels = filterDate;
-
-//       //replace data
-//       const filterTotalTime = totalTimeCopy.slice(startDateIndex, endDateIndex + 1);
-//       console.log(filterTotalTime);
-//       myChart.data.datasets[0].data = filterTotalTime;
-//       myChart.update();    
-//     }
-//     else{
-//       console.log("empty chart");
-//     }
-//   });  
-// });
 

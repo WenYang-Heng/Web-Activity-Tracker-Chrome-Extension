@@ -132,7 +132,7 @@ function timeSpent(){
 }
 
 function storage(domainToBeInserted, timeOnDomain){
-    currentDate = getDate();
+    currentDate = "17-04-2023";//getDate();
 
     chrome.storage.local.get(null, function(result){
         let keys = Object.keys(result);
